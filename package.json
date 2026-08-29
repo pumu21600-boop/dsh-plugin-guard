@@ -1,0 +1,19 @@
+{
+  "name": "dsh-plugin-guard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "插件创作公约 / Plugin Authoring Conventions — auto-injects the dsh plugin-authoring rules into every agent's system prompt",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}
