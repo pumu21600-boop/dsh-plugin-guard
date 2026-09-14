@@ -1,6 +1,6 @@
 {
   "name": "dsh-plugin-guard",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "插件创作公约 / Plugin Authoring Conventions — auto-injects the dsh plugin-authoring rules into every agent's system prompt",
   "type": "module",

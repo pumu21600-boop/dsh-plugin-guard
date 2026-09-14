@@ -28,12 +28,17 @@
 ## 4. Mounting and updates
 
 1. Put the package under `~/.dsh/profiles/web/node_modules/` (a junction to your source directory).
-2. Append to `~/.dsh/profiles/web/cordis.patch.yml`:
+2. Append to `~/.dsh/profiles/web/cordis.patch.yml` — it **must** be wrapped in `insert:`:
 
    ```yaml
-   - id: <plugin-name>
-     name: '<plugin-name>'
+   - insert:
+       - id: <plugin-name>
+         name: '<plugin-name>'
    ```
+
+   A top-level `- id: <plugin-name>` / `name:` row is read as an override of an existing
+   entry; since that id exists in no bundle layer, DSH only prints
+   `patch: entry "..." not found` and drops it — the plugin never loads.
 
 3. After editing `lib/client.js`: restart the backend and refresh the page (the rev query changes).
 

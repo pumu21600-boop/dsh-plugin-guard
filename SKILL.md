@@ -33,7 +33,7 @@ description: Out-of-repo DeepSeek Harness plugin authoring conventions — styli
 ## 四、挂载与更新
 
 1. 包放 `~/.dsh/profiles/web/node_modules/`（junction 指向源码目录）。
-2. `~/.dsh/profiles/web/cordis.patch.yml` 追加 `- id: <插件名> / name: '<插件名>'`。
+2. `~/.dsh/profiles/web/cordis.patch.yml` 追加 `- insert: [{ id: <插件名>, name: '<插件名>' }]`——必须用 `insert:`；顶层 `- id: / name:` 会被当成覆盖、报 `patch: entry ... not found` 后丢弃。
 3. 改 `lib/client.js` 后重启后端并刷新页面。
 
 ## 五、用 dsh-plugin-guard 自查

@@ -40,11 +40,12 @@ lib/                  构建产物（已 gitignore）
    New-Item -ItemType Junction -Path "$env:USERPROFILE\.dsh\profiles\web\node_modules\dsh-plugin-guard" -Target (Get-Location).Path
    ```
 
-2. 在 `~/.dsh/profiles/web/cordis.patch.yml` 追加：
+2. 在 `~/.dsh/profiles/web/cordis.patch.yml` 追加（必须用 `insert` 形式，写成顶层 `- id: / name:` 只会得到 `patch: entry ... not found` 警告且不生效）：
 
    ```yaml
-   - id: dsh-plugin-guard
-     name: 'dsh-plugin-guard'
+   - insert:
+       - id: dsh-plugin-guard
+         name: 'dsh-plugin-guard'
    ```
 
 3. 重启后端即生效：插件会把公约合并进 AGENTS.md，此后每个会话自动携带公约

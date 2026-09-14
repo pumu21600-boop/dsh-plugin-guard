@@ -27,12 +27,16 @@
 ## 四、挂载与更新
 
 1. 包放在 `~/.dsh/profiles/web/node_modules/`（junction 指向源码目录）。
-2. 在 `~/.dsh/profiles/web/cordis.patch.yml` 追加：
+2. 在 `~/.dsh/profiles/web/cordis.patch.yml` 追加条目——**必须包在 `insert:` 里**：
 
    ```yaml
-   - id: <插件名>
-     name: '<插件名>'
+   - insert:
+       - id: <插件名>
+         name: '<插件名>'
    ```
+
+   写成顶层 `- id: <插件名>` / `name:` 会被当成「覆盖已存在条目」，因为该 id 不在任何
+   bundle 层里，DSH 只打印 `patch: entry "..." not found` 然后丢弃——插件根本不加载。
 
 3. 修改 `lib/client.js` 后：重启后端 + 刷新页面（rev 查询会变）。
 
