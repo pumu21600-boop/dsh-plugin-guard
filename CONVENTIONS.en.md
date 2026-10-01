@@ -22,13 +22,14 @@
 ## 3. Red lines
 
 1. Never `session.append` an event type outside the build's known set: it poisons the log and replay on other builds; mark it `ignorable: true` or use a standard event.
-2. Never persist business data in localStorage/IndexedDB: origin-bound, lost on port/host changes; use `ctx.settings.register` / `settingsScope` or the storage domain service.
+2. Never persist business data in localStorage/IndexedDB: origin-bound, lost on port/host changes. Persist config through entry `Config` (DSH ≥ 0.2.0: export `Config` = a schemastery schema from the plugin module, read it as the second `apply(ctx, config)` argument, write with `ctx.get('configEditor').edit(ctx.fiber.entry, () => next)`); keep file-shaped state under `$DSH_HOME/storages`.
 3. Never restyle `document.body` / `window` globally or mount a `position:fixed` overlay on body: it fights the app shell.
 
-## 4. Mounting and updates
+## 4. Mounting and updates (DSH ≥ 0.2.0: plugins are bundles)
 
-1. Put the package under `~/.dsh/profiles/web/node_modules/` (a junction to your source directory).
-2. Append to `~/.dsh/profiles/web/cordis.patch.yml` — it **must** be wrapped in `insert:`:
+1. Put the package under the profile's `node_modules` (a junction to your source directory), e.g. `~/.dsh/profiles/desktop/node_modules/<plugin-name>`.
+2. Register it in `~/.dsh/profiles/desktop/package.json`: add the package to `dependencies` (version) and `<plugin-name>` to `dsh.profile.bundles` (after `@deepseek-ai/dsh-base` and `@deepseek-ai/dsh-web-app`); the profile's `cordis.patch.yml` no longer mounts plugins.
+3. Declare `"dsh": { "bundle": { "patch": "./cordis.patch.yml" } }` in the plugin's `package.json`; the repo-root `cordis.patch.yml` inserts the plugin itself into the cordis tree:
 
    ```yaml
    - insert:
@@ -36,11 +37,8 @@
          name: '<plugin-name>'
    ```
 
-   A top-level `- id: <plugin-name>` / `name:` row is read as an override of an existing
-   entry; since that id exists in no bundle layer, DSH only prints
-   `patch: entry "..." not found` and drops it — the plugin never loads.
-
-3. After editing `lib/client.js`: restart the backend and refresh the page (the rev query changes).
+4. Settings no longer use `ctx.settings.register` (removed in 0.2.0): write entry `Config` as described in red line 2.
+5. After editing `lib`: restart the desktop app (refresh the page on the client; the rev query changes).
 
 ## 5. Self-check with dsh-plugin-guard
 

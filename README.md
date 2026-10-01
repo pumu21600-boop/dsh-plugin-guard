@@ -32,23 +32,27 @@ SKILL.md              技能版公约（供 AI 直接引用）
 lib/                  构建产物（已 gitignore）
 ```
 
-## 安装
+## 安装（DSH ≥ 0.2.0：插件即 bundle）
 
-1. 链接到 profile：
+1. junction 到桌面端 profile 的插件目录：
 
    ```powershell
-   New-Item -ItemType Junction -Path "$env:USERPROFILE\.dsh\profiles\web\node_modules\dsh-plugin-guard" -Target (Get-Location).Path
+   New-Item -ItemType Junction -Path "$env:USERPROFILE\.dsh\profiles\desktop\node_modules\dsh-plugin-guard" -Target (Get-Location).Path
    ```
 
-2. 在 `~/.dsh/profiles/web/cordis.patch.yml` 追加（必须用 `insert` 形式，写成顶层 `- id: / name:` 只会得到 `patch: entry ... not found` 警告且不生效）：
+2. 在 `~/.dsh/profiles/desktop/package.json` 里把插件加入 `dependencies` 与
+   `dsh.profile.bundles`（0.2.0 起 profile 的 cordis.patch.yml 不再负责装载插件；
+   本包自带 `dsh.bundle.patch`，无需再写用户层 insert）：
 
-   ```yaml
-   - insert:
-       - id: dsh-plugin-guard
-         name: 'dsh-plugin-guard'
+   ```json
+   "dependencies": { "dsh-plugin-guard": "0.1.2" }
    ```
 
-3. 重启后端即生效：插件会把公约合并进 AGENTS.md，此后每个会话自动携带公约
+   ```json
+   "dsh": { "profile": { "bundles": ["@deepseek-ai/dsh-base", "@deepseek-ai/dsh-web-app", "dsh-plugin-guard"] } }
+   ```
+
+3. 重启桌面端即生效：插件会把公约合并进 AGENTS.md，此后每个会话自动携带公约
    （纯宿主、无客户端，也无需刷新页面）。
 
 ## 构建

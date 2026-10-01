@@ -27,14 +27,16 @@ description: Out-of-repo DeepSeek Harness plugin authoring conventions — styli
 ## 三、红线
 
 1. 不写本构建未知的 `session.append` 事件类型（毒化重放）；要么 `ignorable: true`，要么用标准事件。
-2. 不用 localStorage/IndexedDB 存业务数据（换端口即丢）；用 `ctx.settings.register` / `settingsScope`。
+2. 不用 localStorage/IndexedDB 存业务数据（换端口即丢）；配置持久化用「条目 Config」（DSH ≥ 0.2.0：导出 `Config` = schemastery schema，`apply(ctx, config)` 第二参数读、`ctx.get('configEditor').edit(ctx.fiber.entry, () => next)` 写），文件型状态放 `$DSH_HOME/storages`。
 3. 不改 `document.body`/`window` 全局样式、不挂 body `position:fixed` 覆盖层。
 
-## 四、挂载与更新
+## 四、挂载与更新（DSH ≥ 0.2.0：插件即 bundle）
 
-1. 包放 `~/.dsh/profiles/web/node_modules/`（junction 指向源码目录）。
-2. `~/.dsh/profiles/web/cordis.patch.yml` 追加 `- insert: [{ id: <插件名>, name: '<插件名>' }]`——必须用 `insert:`；顶层 `- id: / name:` 会被当成覆盖、报 `patch: entry ... not found` 后丢弃。
-3. 改 `lib/client.js` 后重启后端并刷新页面。
+1. 包放 profile 的 `node_modules/`（junction 指向源码目录），如 `~/.dsh/profiles/desktop/node_modules/<插件名>`。
+2. 在 `~/.dsh/profiles/desktop/package.json` 登记：`dependencies` 加本包，`dsh.profile.bundles` 加 `<插件名>`（排在两个内置 bundle 之后）；profile 的 `cordis.patch.yml` 不再负责装载插件。
+3. 插件包 `package.json` 声明 `"dsh": { "bundle": { "patch": "./cordis.patch.yml" } }`，仓库根的 `cordis.patch.yml` 用 `insert:` 把自己加进 cordis 树。
+4. 不用 `ctx.settings.register`（0.2.0 已移除），改用条目 `Config`。
+5. 改 `lib` 后重启桌面端并刷新页面。
 
 ## 五、用 dsh-plugin-guard 自查
 

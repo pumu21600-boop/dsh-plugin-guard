@@ -21,13 +21,14 @@
 ## 三、红线（踩了必坏）
 
 1. 不要 `session.append` 本构建未知的事件类型：会毒化会话日志、破坏其它构建的重放；要么加 `ignorable: true`，要么改用标准事件。
-2. 持久化不要用 localStorage/IndexedDB：绑定 origin，换端口/主机即丢；用 `ctx.settings.register` / `settingsScope` 或存储域服务。
+2. 持久化不要用 localStorage/IndexedDB：绑定 origin，换端口/主机即丢。配置持久化用「条目 Config」（DSH ≥ 0.2.0：插件模块导出 `Config` = schemastery schema，`apply(ctx, config)` 第二参数读、`ctx.get('configEditor').edit(ctx.fiber.entry, () => next)` 写）；文件型状态放 `$DSH_HOME/storages`。
 3. 不要直接改 `document.body` / `window` 的全局样式、不要挂 body 上的 `position:fixed` 覆盖层：与应用外壳冲突。
 
-## 四、挂载与更新
+## 四、挂载与更新（DSH ≥ 0.2.0：插件即 bundle）
 
-1. 包放在 `~/.dsh/profiles/web/node_modules/`（junction 指向源码目录）。
-2. 在 `~/.dsh/profiles/web/cordis.patch.yml` 追加条目——**必须包在 `insert:` 里**：
+1. 包放在 profile 的 `node_modules` 下（junction 指向源码目录），如 `~/.dsh/profiles/desktop/node_modules/<插件名>`。
+2. 在 `~/.dsh/profiles/desktop/package.json` 登记：`dependencies` 加本包（版本号），`dsh.profile.bundles` 加 `<插件名>`（排在 `@deepseek-ai/dsh-base`、`@deepseek-ai/dsh-web-app` 之后）；profile 的 `cordis.patch.yml` 不再负责装载插件。
+3. 插件包 `package.json` 声明 `"dsh": { "bundle": { "patch": "./cordis.patch.yml" } }`；仓库根目录的 `cordis.patch.yml` 用 `insert` 把自己加进 cordis 树：
 
    ```yaml
    - insert:
@@ -35,10 +36,8 @@
          name: '<插件名>'
    ```
 
-   写成顶层 `- id: <插件名>` / `name:` 会被当成「覆盖已存在条目」，因为该 id 不在任何
-   bundle 层里，DSH 只打印 `patch: entry "..." not found` 然后丢弃——插件根本不加载。
-
-3. 修改 `lib/client.js` 后：重启后端 + 刷新页面（rev 查询会变）。
+4. 设置项不用 `ctx.settings.register`（0.2.0 已移除）：按上面第三条红线的方式写条目 `Config`。
+5. 修改 `lib` 后重启桌面端（客户端刷新页面，rev 查询会变）。
 
 ## 五、用 dsh-plugin-guard 自查
 
